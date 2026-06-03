@@ -68,8 +68,8 @@ public slots:
 
 	virtual void copySelected();
 	virtual void pasteToSelected();
-	virtual void clearSelected();
-	virtual void fillSelected();
+	virtual void clearSelected() { return fillSelected(0x00); }
+	virtual void fillSelectedNOP() { return fillSelected(0x90); }
 
 	virtual void followSelectedVa() { return followSelected(Executable::VA);  }
 	virtual void followSelectedRva() { return followSelected(Executable::RVA); }
@@ -90,6 +90,7 @@ protected:
 	offset_t getSelectedAddress();
 	void followSelected(const Executable::addr_type& type);
 	bool isIndexListContinuous(QModelIndexList &list);
+	void fillSelected(const char val);
 
 	inline void adjustMinWidth();
 	int hexColWidth;

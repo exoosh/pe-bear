@@ -257,7 +257,7 @@ void HexTableView::initMenu()
 
 	QAction *fillSelAction = new QAction(tr("NOP"), fillSubmenu);
 	fillSubmenu->addAction(fillSelAction);
-	connect(fillSelAction, SIGNAL(triggered()), this, SLOT(fillSelected()));
+	connect(fillSelAction, SIGNAL(triggered()), this, SLOT(fillSelectedNOP()));
 
 	undoAction = new QAction(tr("Undo"), menu);
 	undoAction->setShortcut(Qt::CTRL | Qt::Key_Z);
@@ -478,7 +478,7 @@ void HexTableView::pasteToSelected()
 	}
 }
 
-void HexTableView::fillSelected()
+void HexTableView::fillSelected(const char val)
 {
 	QItemSelectionModel *model = this->selectionModel();
 	if (!model) return;
@@ -486,7 +486,6 @@ void HexTableView::fillSelected()
 	QModelIndexList list = model->selectedIndexes();
 	const int size = list.size();
 	if (size == 0) return;
-
 	if (!isIndexListContinuous(list)) {
 		QMessageBox::warning(0, tr("Warning!"), tr("Select continuous area!"));
 		return;
@@ -495,30 +494,7 @@ void HexTableView::fillSelected()
 	offset_t first = hexModel->contentOffsetAt(list.at(0));
 	if (first == INVALID_ADDR) return;
 
-	if (hexModel->myPeHndl->fillBlock(first, size, 0x90) == false) {
-		QMessageBox::warning(0, tr("Error!"), tr("Modification in this area in  unacceptable!")+"\n"+ tr("(Causes format corruption)"));
-		return;
-	}
-}
-
-
-void HexTableView::clearSelected()
-{
-	QItemSelectionModel *model = this->selectionModel();
-	if (!model) return;
-
-	QModelIndexList list = model->selectedIndexes();
-	const int size = list.size();
-	if (size == 0) return;
-
-	if (!isIndexListContinuous(list)) {
-		QMessageBox::warning(0, tr("Warning!"), tr("Select continuous area!"));
-		return;
-	}
-	offset_t first = hexModel->contentOffsetAt(list.at(0));
-	if (first == INVALID_ADDR) return;
-
-	if (hexModel->myPeHndl->fillBlock(first, size, 0) == false) {
+	if (hexModel->myPeHndl->fillBlock(first, size, val) == false) {
 		QMessageBox::warning(0, tr("Error!"), tr("Modification in this area in  unacceptable!")+"\n"+ tr("(Causes format corruption)"));
 		return;
 	}
