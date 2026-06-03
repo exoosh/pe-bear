@@ -34,8 +34,6 @@ PatternSearchWindow::PatternSearchWindow(QWidget *parent, PeHandler* peHndl)
 
 	searchedStrLabel.setText(tr("String to search:"));
 	searchedStrLabel.setBuddy(&searchedStrEdit);
-	signatureTabLayout.addWidget(&searchedStrLabel);
-	signatureTabLayout.addWidget(&searchedStrEdit);
 	stringTab.setLayout(&stringTabLayout);
 
 	tabWidget.addTab(&signatureTab, tr("Signature"));
@@ -57,6 +55,17 @@ PatternSearchWindow::PatternSearchWindow(QWidget *parent, PeHandler* peHndl)
 	buttonLayout.addWidget(&searchButton);
 	connect(&searchButton, SIGNAL(clicked()), this, SLOT(onSearchClicked()));
 	patternEdit.setFocus();
+
+	connect(&tabWidget, &QTabWidget::currentChanged,
+		this, [this](int index)
+		{
+			if (index == 0) {
+				patternEdit.setFocus();
+			}
+			else {
+				searchedStrEdit.setFocus();
+			}
+		});
 }
 
 void PatternSearchWindow::onSearchClicked()
