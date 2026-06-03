@@ -23,6 +23,12 @@
 #define HEXDMP_HTXT "white"
 #define DIAGRAM_BG "#e3e4fa"
 
+#define SELECTION_HBG_COLOR "#00008A"
+#define SELECTION_TBG_COLOR "#E5E6F8"
+
+#define SELECTION_HTXT_COLOR "white"
+#define SELECTION_TTXT_COLOR "black"
+
 #define ERR_COLOR "#FF0000"
 #define APPROVED_COLOR "#40EE40" // lightgreen
 

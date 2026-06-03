@@ -30,9 +30,10 @@ public:
 
 	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
-	void setSelectionColor(const QColor& color)
+	void setSelectionColor(const QColor& bgColor, const QColor& textColor)
 	{
-		m_selectionColor = color;
+		m_selectionBgColor = bgColor;
+		m_selectionTextColor = textColor;
 	}
 
 Q_SIGNALS:
@@ -41,7 +42,7 @@ Q_SIGNALS:
 private:
 	void selectNextParentItem(const QModelIndex &index) const;
 
-	QColor m_selectionColor;
+	QColor m_selectionBgColor, m_selectionTextColor;
 	QRegularExpressionValidator validator;
 };
 
@@ -97,7 +98,7 @@ protected:
 	void initHeader();
 	void initHeaderMenu();
 	void initMenu();
-	void setSelectionColor(const QColor& color);
+	void setSelectionColor(const QColor& bgColor, const QColor& textColor);
 
 	QMenu* followAddrSubmenu;
 	QAction* followAction[Executable::ADDR_TYPE_COUNT] = { nullptr };

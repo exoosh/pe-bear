@@ -69,8 +69,8 @@ void ContentPreview::applyViewsSettings()
 	"{"
 		"background-color: " + HEXDMP_HBG + ";"
 		"alternate-background-color: " + HEXDMP_ALTBG +";"
-		"selection-background-color: " + HEXDMP_BG + ";"
-		"selection-color: "+ HEXDMP_TXT +";"
+		"selection-background-color: " + SELECTION_HBG_COLOR + ";"
+		"selection-color: "+ SELECTION_HTXT_COLOR +";"
 		"color: " + HEXDMP_HTXT + ";"
 	"}";
 	this->textView.setStyleSheet(textStyle);
@@ -80,8 +80,8 @@ void ContentPreview::applyViewsSettings()
 	"{"
 		"background-color: " + HEXDMP_BG + ";"
 		"alternate-background-color: " + HEXDMP_ALTBG +";"
-		"selection-background-color: " + HEXDMP_HBG + ";"
-		"selection-color: "+ HEXDMP_HTXT +";"
+		"selection-background-color: " + SELECTION_TBG_COLOR + ";"
+		"selection-color: "+ SELECTION_TTXT_COLOR +";"
 		"color: " + HEXDMP_TXT + ";"
 	"}";
 	this->hexView.setStyleSheet(hexStyle);

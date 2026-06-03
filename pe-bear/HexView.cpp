@@ -72,7 +72,8 @@ QModelIndex getNextIndex(QAbstractItemModel &model, const QModelIndex &index)
 //----
 
 HexItemDelegate::HexItemDelegate(QObject* parent) :
-	QStyledItemDelegate(parent), m_selectionColor(QColor(255, 0, 0))
+	QStyledItemDelegate(parent), 
+	m_selectionBgColor(QColor(255, 0, 0)), m_selectionTextColor(QColor(255, 255, 255))
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 	validator.setRegularExpression(QRegularExpression("[0-9A-Fa-f]{2,}"));
@@ -131,16 +132,29 @@ void HexItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, c
 	QStyledItemDelegate::setModelData(editor, model, index);
 	emit dataSet(index.column(), index.row());
 }
-
-void HexItemDelegate::paint(QPainter* painter,const QStyleOptionViewItem& option, const QModelIndex& index) const
+void HexItemDelegate::paint(QPainter* painter,
+	const QStyleOptionViewItem& option,
+	const QModelIndex& index) const
 {
-	if (option.state & QStyle::State_Selected)
-	{
-		painter->fillRect(option.rect, m_selectionColor);
-	}
-	QStyledItemDelegate::paint(painter, option, index);
-}
+	QStyleOptionViewItem opt(option);
+	initStyleOption(&opt, index);
 
+	if (opt.state & QStyle::State_Selected)
+	{
+		// Draw custom background
+		painter->fillRect(opt.rect, m_selectionBgColor);
+
+		// Tell Qt the item is not selected anymore
+		// so it won't draw its own selection background
+		opt.state &= ~QStyle::State_Selected;
+
+		// Use desired text color
+		opt.palette.setColor(QPalette::Text, m_selectionTextColor);
+		opt.palette.setColor(QPalette::WindowText, m_selectionTextColor);
+	}
+
+	QStyledItemDelegate::paint(painter, opt, index);
+}
 
 //--------------------------------------------------------------------
 
@@ -191,9 +205,9 @@ void HexTableView::init()
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-void HexTableView::setSelectionColor(const QColor& color)
+void HexTableView::setSelectionColor(const QColor& bgColor, const QColor& textColor)
 {
-	this->m_delegate->setSelectionColor(color);
+	this->m_delegate->setSelectionColor(bgColor, textColor);
 }
 
 void HexTableView::initHeaderMenu()
@@ -592,14 +606,11 @@ void HexTableView::setModel(HexDumpModel *model)
 	connect(this->hexModel->myPeHndl, SIGNAL(hovered()), this, SLOT(onResetRequested()) );
 
 	// TODO: get from the style sheet:
-	static QColor selectionHex = QColor("#DAC8AE");
-	static QColor selectionText = QColor("#592720");
-
 	if (this->hexModel->isHexView()) {
-		this->setSelectionColor(selectionHex);
+		this->setSelectionColor(QColor(SELECTION_HBG_COLOR), QColor(SELECTION_HTXT_COLOR));
 	}
 	else {
-		this->setSelectionColor(selectionText);
+		this->setSelectionColor(QColor(SELECTION_TBG_COLOR), QColor(SELECTION_TTXT_COLOR));
 	}
 	adjustMinWidth();
 }
