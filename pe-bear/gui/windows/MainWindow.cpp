@@ -272,7 +272,7 @@ void MainWindow::createTreeActions()
 	this->saveAction = new ExeDependentAction(saveIco, tr("&Save the executable as..."), this);
 	connect(this->saveAction, SIGNAL(triggered(PeHandler*)), this, SLOT(savePE(PeHandler*)));
 	
-	this->searchSignature = new ExeDependentAction(QIcon(":/icons/Preview.ico"), tr("Find signature"), this);
+	this->searchSignature = new ExeDependentAction(QIcon(":/icons/Preview.ico"), tr("Find pattern"), this);
 	connect(this->searchSignature, SIGNAL(triggered(PeHandler*)), this, SLOT(searchPattern(PeHandler*)));
 
 	reloadAction = new ExeDependentAction(QIcon(":/icons/reload.ico"), tr("&Reload"), this);

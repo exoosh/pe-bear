@@ -96,7 +96,7 @@ public:
 	bool loadSignature(const QString &label, const QString &text)
 	{
 		m_patternFinder.clear();
-		Signature *sign = Signature::loadFromByteStr("Searched", text.toStdString());
+		Signature* sign = Signature::loadFromByteStr(label.toStdString(), text.toStdString());
 		if (!sign) {
 			return false;
 		}
