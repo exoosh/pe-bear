@@ -40,9 +40,13 @@ DiffWindow::DiffWindow(PeHandlersManager &peMngr, QWidget *parent)
     : QMainWindow(parent), peManger(peMngr),
     hexDumpModelL(LEFT), hexDumpModelR(RIGHT)
 {
-	createFormatChanger(LEFT, &this->toolBars[LEFT]);
-	createFormatChanger(RIGHT, &this->toolBars[RIGHT]);
-	
+
+	QStringList commands;
+	commands << "Raw" << "Relative ($+)";
+	addrFmtBox.addItems(commands);
+	connect(&addrFmtBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onAddrFormatSelected(int)));
+	globalToolBar.addWidget(&addrFmtBox);
+
 	createActions();
 
 	this->setWindowTitle("Compare...");
@@ -58,15 +62,13 @@ DiffWindow::DiffWindow(PeHandlersManager &peMngr, QWidget *parent)
 	leftSplitter.addWidget(&this->fileCombo[LEFT]);
 	leftSplitter.addWidget(&this->treeView[LEFT]);
 
-	leftSplitter.addWidget(&this->toolBars[LEFT]);
 	leftSplitter.addWidget(&this->fileView[LEFT]);
 	leftSplitter.addWidget(&this->numEdit[LEFT]);
 
-	for (int viewIndx = 0; viewIndx < CNTR; viewIndx++) {
-		this->toolBars[viewIndx].addAction(setHexView);
-		this->toolBars[viewIndx].addAction(nextDiff);
-		this->numEdit[viewIndx].setReadOnly(true);
-	}
+	globalToolBar.addAction(setHexView);
+	globalToolBar.addAction(nextDiff);
+
+	addToolBar(Qt::BottomToolBarArea, &globalToolBar);
 
 	this->treeView[LEFT].setHeaderHidden(true);
 	this->treeView[RIGHT].setHeaderHidden(true);
@@ -74,7 +76,6 @@ DiffWindow::DiffWindow(PeHandlersManager &peMngr, QWidget *parent)
 	rightSplitter.addWidget(&this->fileCombo[RIGHT]);
 	rightSplitter.addWidget(&this->treeView[RIGHT]);
 
-	rightSplitter.addWidget(&this->toolBars[RIGHT]);
 	rightSplitter.addWidget(&this->fileView[RIGHT]);
 	rightSplitter.addWidget(&this->numEdit[RIGHT]);
 
@@ -141,23 +142,9 @@ void DiffWindow::resizeComponents()
 
 	for (int viewIndx = 0; viewIndx < CNTR; viewIndx++) {
 		this->fileCombo[viewIndx].setMaximumHeight(MAX_HEIGHT);
-		this->toolBars[viewIndx].setMaximumHeight(MAX_HEIGHT);
 		this->numEdit[viewIndx].setFixedHeight(NUM_EDIT_HEIGHT);
 	}
-}
-
-bool DiffWindow::createFormatChanger(ContentIndx indx, QToolBar* parent)
-{
-	if (indx >= CNTR) return false;
-	if (!parent) return false;
-	
-	QStringList commands;
-	commands << "Raw" << "Relative ($+)";
-	addrFmtBox[indx].addItems(commands);
-	connect(&addrFmtBox[indx], SIGNAL(currentIndexChanged(int)), this, SLOT(onAddrFormatSelected(int)) );
-	
-	parent->addWidget(&addrFmtBox[indx]);
-	return true;
+	globalToolBar.setMaximumHeight(MAX_HEIGHT);
 }
 
 void DiffWindow::onSliderMoved(int val)
@@ -259,10 +246,8 @@ void DiffWindow::onAddrFormatSelected(int val)
 		hexDumpModelL.setRelativeOffset(true);
 		hexDumpModelR.setRelativeOffset(true);
 	}
-	for (int i = 0; i < CNTR; i++) {
-		if (addrFmtBox[i].currentIndex() != val) {
-			addrFmtBox[i].setCurrentIndex(val);
-		}
+	if (addrFmtBox.currentIndex() != val) {
+		addrFmtBox.setCurrentIndex(val);
 	}
 }
 
@@ -275,8 +260,13 @@ void DiffWindow::createActions()
 	connect(setHexView, SIGNAL(triggered(bool)), &hexDumpModelR, SLOT(setHexView(bool)) );
 
 	this->nextDiff = new QAction("Next Diff", this);
-	connect(this->nextDiff, SIGNAL(triggered()), &hexDumpModelL, SLOT(onGoToNextDiff()) );
-	connect(this->nextDiff, SIGNAL(triggered()), &hexDumpModelR, SLOT(onGoToNextDiff()) );
+	connect(nextDiff, &QAction::triggered, this, &DiffWindow::onNextDiff);
+}
+
+void DiffWindow::onNextDiff()
+{
+	hexDumpModelL.onGoToNextDiff();
+	hexDumpModelR.onGoToNextDiff();
 }
 
 void DiffWindow::destroyActions()
@@ -469,14 +459,7 @@ void DiffWindow::itemMarked(const QModelIndex & current, const QModelIndex & pre
 	contentPtr[contentIndx] = newContent;
 	contentSize[contentIndx] = newSize;
 	contentOffset[contentIndx] = item->getContentOffset();
-	/*
-	QList<QString> stringsList;
-	for (int pagePtr  = 0; pagePtr < contentSize[contentIndx]; pagePtr += PREVIEW_SIZE) {
-		stringsList.append(QString::number(pagePtr, 16));
-	}
-	scopeCombo[contentIndx].clear();
-	scopeCombo[contentIndx].addItems(stringsList);
-	*/
+
 	bufsize_t diff = HexDiffModel::getDiffStart(contentPtr[LEFT], contentSize[LEFT], contentPtr[RIGHT], contentSize[RIGHT]);
 	if (diff == HexDiffModel::DIFF_NOT_FOUND) {
 		if (contentSize[LEFT] != contentSize[RIGHT]) {

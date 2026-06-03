@@ -48,10 +48,10 @@ public slots:
 private slots:
 	void onSliderMoved(int val);
 	void onAddrFormatSelected(int val);
+	void onNextDiff();
 
 protected:
 	void resizeComponents();
-	bool createFormatChanger(ContentIndx indx, QToolBar* parent);
 	bool reselectPrevious(QList<QString> &stringsList, ContentIndx contentIndx);
 	void createActions();
 	void destroyActions();
@@ -81,13 +81,14 @@ protected:
 	BYTE* contentPtr[CNTR];
 	size_t contentSize[CNTR];
 
-	QToolBar toolBars[CNTR];
-	QComboBox addrFmtBox[CNTR];
 	QStatusBar statusBar;
 
 	QAction *setHexView;
 	QAction *nextDiff;
 
 	QString currName[CNTR];
+
+	QToolBar globalToolBar;
+	QComboBox addrFmtBox;
 };
 
