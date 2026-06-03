@@ -48,12 +48,11 @@ for:
         - image: Ubuntu2204
 
     install:
-     - git submodule update --init --recursive
-     - export QTDIR="$HOME/Qt/6.9"
-     - export LD_LIBRARY_PATH="$QTDIR:$LD_LIBRARY_PATH"
-     - export PATH="$QTDIR/bin:$PATH"
-     - export PATH="$QTDIR/linux_gcc_64/bin:$PATH"
-     
+      - git submodule update --init --recursive
+      - export QTDIR="$HOME/Qt/6.8/gcc_64"
+      - export LD_LIBRARY_PATH="$QTDIR/lib:$LD_LIBRARY_PATH"
+      - export PATH="$QTDIR/bin:$PATH"
+ 
     before_build:
       - cmake --version
       - qmake --version
