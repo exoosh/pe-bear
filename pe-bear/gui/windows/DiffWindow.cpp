@@ -340,10 +340,10 @@ void DiffWindow::file2Selected(const QString &text)
 	setPEContent(text, 0, RIGHT);
 
 	connect(treeView[RIGHT].selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), 
-		this, SLOT( item2Marked(const QModelIndex &, const QModelIndex &) ) );
+		this, SLOT( item2Marked(const QModelIndex &, const QModelIndex &)), Qt::UniqueConnection);
 
 	connect(this->fileView[RIGHT].selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-		this, SLOT(hexSelectedR()) );
+		this, SLOT(hexSelectedR()), Qt::UniqueConnection);
 }
 
 void DiffWindow::file1Selected(const QString &text)
@@ -352,10 +352,10 @@ void DiffWindow::file1Selected(const QString &text)
 	setPEContent(text, 0, LEFT);
 
 	connect(treeView[LEFT].selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-		this, SLOT( item1Marked(const QModelIndex &, const QModelIndex &) ) );
+		this, SLOT( item1Marked(const QModelIndex &, const QModelIndex &)), Qt::UniqueConnection);
 
 	connect(this->fileView[LEFT].selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-		this, SLOT(hexSelectedL()) );
+		this, SLOT(hexSelectedL()), Qt::UniqueConnection);
 }
 
 void DiffWindow::removeUnusedTreeModels()
