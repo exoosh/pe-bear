@@ -46,6 +46,7 @@ DiffWindow::DiffWindow(PeHandlersManager &peMngr, QWidget *parent)
 	addrFmtBox.addItems(commands);
 	connect(&addrFmtBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onAddrFormatSelected(int)));
 	globalToolBar.addWidget(&addrFmtBox);
+	globalToolBar.setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
 
 	createActions();
 
