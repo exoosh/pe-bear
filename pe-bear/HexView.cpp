@@ -255,9 +255,13 @@ void HexTableView::initMenu()
 	fillSubmenu->addAction(clearSelAction);
 	connect(clearSelAction, SIGNAL(triggered()), this, SLOT(clearSelected()));
 
-	QAction *fillSelAction = new QAction(tr("NOP"), fillSubmenu);
+	QAction *nopSelAction = new QAction(tr("NOP"), fillSubmenu);
+	fillSubmenu->addAction(nopSelAction);
+	connect(nopSelAction, SIGNAL(triggered()), this, SLOT(fillSelectedNOP()));
+
+	QAction* fillSelAction = new QAction(tr("Custom..."), fillSubmenu);
 	fillSubmenu->addAction(fillSelAction);
-	connect(fillSelAction, SIGNAL(triggered()), this, SLOT(fillSelectedNOP()));
+	connect(fillSelAction, SIGNAL(triggered()), this, SLOT(fillSelectedCustom()));
 
 	undoAction = new QAction(tr("Undo"), menu);
 	undoAction->setShortcut(Qt::CTRL | Qt::Key_Z);
@@ -476,6 +480,37 @@ void HexTableView::pasteToSelected()
 		QMessageBox::warning(0, tr("Error!"), tr("Modification in this area in  unacceptable!")+"\n"+tr("(Causes format corruption)"));
 		return;
 	}
+}
+
+void HexTableView::fillSelectedCustom()
+{
+	bool ok = false;
+
+	QString text = QInputDialog::getText(
+		this,
+		tr("Fill Selection"),
+		tr("Enter byte value (hex):"),
+		QLineEdit::Normal,
+		"90",
+		&ok
+	);
+
+	if (!ok || text.isEmpty())
+		return;
+
+	bool convOk = false;
+	int value = text.toInt(&convOk, 16);
+
+	if (!convOk || value < 0x00 || value > 0xFF) {
+		QMessageBox::warning(
+			this,
+			tr("Invalid value"),
+			tr("Please enter a hexadecimal byte value between 00 and FF.")
+		);
+		return;
+	}
+
+	fillSelected(static_cast<char>(value));
 }
 
 void HexTableView::fillSelected(const char val)

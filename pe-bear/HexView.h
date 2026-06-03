@@ -70,6 +70,7 @@ public slots:
 	virtual void pasteToSelected();
 	virtual void clearSelected() { return fillSelected(0x00); }
 	virtual void fillSelectedNOP() { return fillSelected(0x90); }
+	virtual void fillSelectedCustom();
 
 	virtual void followSelectedVa() { return followSelected(Executable::VA);  }
 	virtual void followSelectedRva() { return followSelected(Executable::RVA); }
