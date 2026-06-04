@@ -9,8 +9,9 @@ HexDumpModel::HexDumpModel(PeHandler *peHndl, bool isHexFormat, QObject *parent)
 	startOff(0), endOff(0), pageSize(PREVIEW_SIZE),
 	addrType(Executable::RAW)
 {
-	connectSignals();
-	connect(myPeHndl, SIGNAL(marked()), this, SLOT (onNeedReset()));
+	disconnect(myPeHndl, SIGNAL(modified()), this, SLOT(onNeedReset()));
+	connect(myPeHndl, SIGNAL(modified()), this, SLOT(onNeedReset()), Qt::QueuedConnection);
+	connect(myPeHndl, SIGNAL(marked()), this, SLOT(onNeedReset()), Qt::QueuedConnection);
 }
 
 void HexDumpModel::setShownContent(offset_t start, bufsize_t size)

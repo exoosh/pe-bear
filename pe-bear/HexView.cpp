@@ -180,7 +180,7 @@ HexTableView::HexTableView(QWidget *parent)
 
 	m_delegate = new HexItemDelegate(this);
 	setItemDelegate(m_delegate);
-	connect (m_delegate, SIGNAL(dataSet(int, int)), this, SLOT(onDataSet(int, int)) );
+	connect (m_delegate, SIGNAL(dataSet(int, int)), this, SLOT(onDataSet(int, int)), Qt::QueuedConnection );
 }
 
 void HexTableView::init()
