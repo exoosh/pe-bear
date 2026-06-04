@@ -135,10 +135,10 @@ protected slots:
 
 protected:
 	/* input: unique list */
-	bool isIndexListContinuous(QModelIndexList &uniqueList);
+	bool isIndexListContinuous(QModelIndexList &uniqueList) const;
 
 	/* input: sorted, unique, continuous list */
-	int blockSize(QModelIndexList &uniqueList);
+	int blockSize(QModelIndexList &uniqueList) const;
 
 	void reset();
 
@@ -153,7 +153,7 @@ protected:
 	void followBranching(QModelIndex currIndex);
 	void setHovered(QModelIndexList indexList);
 
-	void mouseMoveEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent* event);
 	void mousePressEvent(QMouseEvent *event);
 	void selectionChanged(const QItemSelection &, const QItemSelection &);
 
@@ -169,7 +169,7 @@ private:
 	void emitArgsRVA(const QModelIndex &index);
 
 	/* returns List of indexes with unique offsets (removes repetition) */
-	QModelIndexList uniqOffsets(QModelIndexList list);
+	QModelIndexList uniqOffsets(const QModelIndexList &list) const;
 };
 //--------------------------------------------------------------------
 class DisasmModel : public HexDumpModel

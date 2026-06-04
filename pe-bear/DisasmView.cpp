@@ -183,7 +183,6 @@ DisasmTreeView::DisasmTreeView(QWidget *parent)
 	setAutoFillBackground(true);
 	setWordWrap(false);
 
-	setCursor(Qt::PointingHandCursor);
 	setSelectionBehavior(QTreeWidget::SelectItems);
 	setSelectionMode(QTreeWidget::ExtendedSelection);
 
@@ -563,12 +562,11 @@ void DisasmTreeView::emitArgsRVA(const QModelIndex &index)
 	}
 }
 
-void DisasmTreeView::mouseMoveEvent(QMouseEvent *event)
+void DisasmTreeView::mouseMoveEvent(QMouseEvent * event)
 {
 	if (!myModel) return;
-
+	
 	const QModelIndex index = this->indexAt(event->pos());
-
 	Qt::CursorShape cursor = Qt::ArrowCursor;
 	if (index.column() == DisasmView::DISASM_COL || index.column() == DisasmView::ICON_COL) {
 		if (myModel->isClickable(index)) {
@@ -576,7 +574,6 @@ void DisasmTreeView::mouseMoveEvent(QMouseEvent *event)
 		}
 	}
 	this->setCursor(cursor);
-	emitArgsRVA(index);
 }
 
 void DisasmTreeView::mousePressEvent(QMouseEvent *event)
@@ -621,7 +618,7 @@ void DisasmTreeView::selectionChanged(const QItemSelection &newSel, const QItemS
 	ExtTableView::selectionChanged(newSel, prevSel);
 }
 
-QModelIndexList DisasmTreeView::uniqOffsets(QModelIndexList list)
+QModelIndexList DisasmTreeView::uniqOffsets(const QModelIndexList& list) const
 {
 	QModelIndexList uniqueList;
 	std::set<offset_t> uniqueOffsets;
@@ -642,7 +639,7 @@ QModelIndexList DisasmTreeView::uniqOffsets(QModelIndexList list)
 	return uniqueList;
 }
 
-bool DisasmTreeView::isIndexListContinuous(QModelIndexList &uniqList)
+bool DisasmTreeView::isIndexListContinuous(QModelIndexList &uniqList) const
 {
 	//QModelIndexList uniqueList = uniqueRows(list);
 	const int size = uniqList.size();
@@ -653,37 +650,39 @@ bool DisasmTreeView::isIndexListContinuous(QModelIndexList &uniqList)
 	offset_t nextOffset = INVALID_ADDR;
 
 	for (int i = 0; i < uniqList.size(); i++) {
-		QModelIndex index = uniqList.at(i);
 
-		offset_t currOffset = myModel->contentOffsetAt(index);
-		if (nextOffset != INVALID_ADDR && nextOffset != currOffset) return false;
+		const QModelIndex index = uniqList.at(i);
+		const offset_t currOffset = myModel->contentOffsetAt(index);
 
+		if (nextOffset != INVALID_ADDR && nextOffset != currOffset) {
+			return false;
+		}
 		nextOffset = currOffset + myModel->getCurrentChunkSize(index);
 	}
 	return true;
 }
 
-int DisasmTreeView::blockSize(QModelIndexList &uniqList)
+int DisasmTreeView::blockSize(QModelIndexList &uniqList) const
 {
 	const int size = uniqList.size();
 	if (size == 0) return 0;
 	
+	const int lastIndx = size - 1;
 	offset_t firstOffset = myModel->contentOffsetAt(uniqList.at(0));
-	offset_t lastOffset = myModel->contentOffsetAt(uniqList.at(size - 1));
+	offset_t lastOffset = myModel->contentOffsetAt(uniqList.at(lastIndx));
 	if (firstOffset == INVALID_ADDR || lastOffset == INVALID_ADDR) {
 		return 0;
 	}
 
 	if (lastOffset < firstOffset) {
-		printf ("Warning: list is not sorted!\n");
 		std::sort(uniqList.begin(), uniqList.end());
 
 		firstOffset = myModel->contentOffsetAt(uniqList.at(0));
-		lastOffset = myModel->contentOffsetAt(uniqList.at(size - 1));
+		lastOffset = myModel->contentOffsetAt(uniqList.at(lastIndx));
 	}
 
-	size_t dif = (lastOffset - firstOffset);
-	size_t blockSize = dif + myModel->getCurrentChunkSize(uniqList.at(size - 1));
+	const size_t dif = (lastOffset - firstOffset);
+	const size_t blockSize = dif + myModel->getCurrentChunkSize(uniqList.at(lastIndx));
 	return blockSize;
 }
 
