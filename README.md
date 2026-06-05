@@ -80,9 +80,11 @@ To build it on Linux or MacOS you can use the given scripts:
 To generate the `.app` bundle on MacOS you can use:
 +   [macos_wrap.sh](./macos_wrap.sh)
 
-### How to use
-
 More info on [📖 Wiki](https://github.com/hasherezade/pe-bear/wiki/Building-from-sources).
+
+## How to use
+
+Read tips and trick on [Wiki](https://github.com/hasherezade/pe-bear/wiki)
 
 ---
 
