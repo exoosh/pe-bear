@@ -156,11 +156,16 @@ void HexItemDelegate::paint(QPainter* painter,
 //--------------------------------------------------------------------
 
 HexTableView::HexTableView(QWidget *parent)
-	: ExtTableView(parent), hexModel(NULL), hexColWidth(COL_WIDTH), m_delegate(NULL)
+	: ExtTableView(parent), hexModel(nullptr), hexColWidth(COL_WIDTH), m_delegate(nullptr),
+	followAddrSubmenu(nullptr), backAction(nullptr), undoAction(nullptr)
 {
+	for (int i = 0; i < static_cast<int>(Executable::ADDR_TYPE_COUNT); ++i) {
+		followAction[i] = nullptr;
+	}
+
 	this->vHdr = new OffsetHeader(this);
-	hHdr = new QHeaderView(Qt::Horizontal, this);	
-	
+	this->hHdr = new QHeaderView(Qt::Horizontal, this);	
+
 	this->setVerticalHeader(vHdr);
 	this->setHorizontalHeader(hHdr);
 	vHdr->setVisible(true);
@@ -278,7 +283,7 @@ void HexTableView::initMenu()
 	followAddrSubmenu->addAction(followAction[Executable::VA]);
 	connect(followAction[Executable::VA], SIGNAL(triggered()), this, SLOT(followSelectedVa()));
 
-	connect(menu, &QMenu::aboutToShow, this, &HexTableView::updateFollowAction);
+	connect(menu, SIGNAL(aboutToShow()), this, SLOT(updateFollowAction()));
 }
 
 void HexTableView::initHeader()

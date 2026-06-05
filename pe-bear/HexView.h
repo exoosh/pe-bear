@@ -101,7 +101,7 @@ protected:
 	void setSelectionColor(const QColor& bgColor, const QColor& textColor);
 
 	QMenu* followAddrSubmenu;
-	QAction* followAction[Executable::ADDR_TYPE_COUNT] = { nullptr };
+	QAction* followAction[Executable::ADDR_TYPE_COUNT];
 	QAction *backAction, *undoAction;
 
 	OffsetHeader* vHdr;

@@ -261,7 +261,7 @@ void DiffWindow::createActions()
 	connect(setHexView, SIGNAL(triggered(bool)), &hexDumpModelR, SLOT(setHexView(bool)) );
 
 	this->nextDiff = new QAction("Next Diff", this);
-	connect(nextDiff, &QAction::triggered, this, &DiffWindow::onNextDiff);
+	connect(nextDiff, SIGNAL(triggered()), this, SLOT(onNextDiff()));
 }
 
 void DiffWindow::onNextDiff()
