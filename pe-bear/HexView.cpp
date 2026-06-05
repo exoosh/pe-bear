@@ -88,6 +88,12 @@ QWidget* HexItemDelegate::createEditor(QWidget *parent,
 {
 	QWidget* editor = QStyledItemDelegate::createEditor(parent, option, index);
 
+	// Register the editor with its owning view so the view can later tell its own
+	// (live) editors apart from stale/duplicate commit/close deliveries.
+	if (HexTableView* view = qobject_cast<HexTableView*>(this->parent())) {
+		view->noteEditorOpened(editor);
+	}
+
 	QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor);
 	if (!lineEdit) {
 		return editor;
@@ -170,7 +176,7 @@ HexTableView::HexTableView(QWidget *parent)
 	this->setHorizontalHeader(hHdr);
 	vHdr->setVisible(true);
 	hHdr->setVisible(true);
-	//hHdr->setFrameShape(QFrame::Shape::Panel);
+
 #if QT_VERSION >= 0x050000
 	vHdr->setSectionsClickable(true);
 #else
@@ -317,12 +323,45 @@ void HexTableView::adjustMinWidth()
 	this->setMinimumWidth(width);
 }
 
+void HexTableView::commitData(QWidget *editor)
+{
+	// Drop a commit for an editor this view no longer owns (stale/duplicate
+	// delivery under fast editing). The base would only warn and return.
+	if (editor && m_liveEditors.contains(editor)) {
+		ExtTableView::commitData(editor);
+	}
+}
+
+void HexTableView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
+{
+	// Drop a close for an editor this view no longer owns; otherwise forward it and
+	// forget the editor. This suppresses the "editor does not belong to this view"
+	// warning flood without changing valid editing behaviour.
+	if (editor && m_liveEditors.remove(editor)) {
+		ExtTableView::closeEditor(editor, hint);
+	}
+}
+
+void HexTableView::editorDestroyed(QObject *editor)
+{
+	// Keep the live-editor set free of dangling pointers.
+	m_liveEditors.remove(static_cast<QWidget*>(editor));
+	ExtTableView::editorDestroyed(editor);
+}
+
 void HexTableView::onDataSet(int col, int row)
 {
-	if (!this->model()) return; // invalid
+	QAbstractItemModel* model = this->model();
+	if (!model) return; // invalid
 	
-	QModelIndex indx = model()->index(row, col);
-	QModelIndex nextIndx = getNextIndex(*this->model(), indx);
+	QModelIndex indx = model->index(row, col);
+	if (!indx.isValid()) {
+		return;
+	}
+	QModelIndex nextIndx = getNextIndex(*model, indx);
+	if (!nextIndx.isValid()) {
+		return;
+	}
 	this->setCurrentIndex(nextIndx);
 	this->edit(nextIndx);
 }

@@ -3,6 +3,7 @@
 #include <stack>
 #include <QtGlobal>
 #include <QStyledItemDelegate>
+#include <QSet>
 
 #include "QtCompat.h"
 #include "REbear.h"
@@ -58,6 +59,8 @@ public:
 	void setVHdrVisible(bool isVisible);
 	virtual void keyPressEvent(QKeyEvent *event);
 
+	void noteEditorOpened(QWidget *editor) { if (editor) m_liveEditors.insert(editor); }
+
 public slots:
 	void onDataSet(int col, int row);
 	void onScrollReset();
@@ -82,8 +85,12 @@ public slots:
 	void undoLastModification();
 	void updateUndoAction();
 
-public slots:
 	void onResetRequested() { reset(); }
+
+protected slots:
+	void commitData(QWidget *editor);
+	void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint);
+	void editorDestroyed(QObject *editor);
 
 protected:
 	offset_t getSelectedAddress();
@@ -109,5 +116,6 @@ protected:
 	HexDumpModel *hexModel;
 	QScrollBar vScrollbar;
 	HexItemDelegate* m_delegate;
+	QSet<QWidget*> m_liveEditors; // editors currently owned by this view
 };
 
